@@ -15,13 +15,13 @@ command1 || command2 that will run command2 if command1 fails.
 command1; command2 that will run command1 then command2.
 command1 | command2 that will run command1 and send the output of command1 to command2.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-									Code execution PHP web app [1]
+									Code execution PHP web app [0]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case, the developer fixed the issue from the previous one and has started filtering some special characters.
 However, the developer forgot that you can use `command` to run a command.
 So when we inject something like ?ip=`id` we got this output: ping -c 2 `id` no errors and our command is printed back, it may seems like it's not executed but who knows maybe its a blind injection so to make sure if it executed or not, we can inject a reverse shell and check if we can get a reverse connection to our machine
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-									Code execution PHP web app [2]
+									Code execution PHP web app [1]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this challenge, the developer fixed the previous issue and is now filtering on even more special characters.
 However, the developer forgot that you can use $(command) to run a command.
